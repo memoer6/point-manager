@@ -1,0 +1,83 @@
+
+
+#Not all Spring applications have to be web applications (or web services). If you want to execute some code in a main method,
+# but also bootstrap a Spring application to set up the infrastructure to use, then it's easy with the SpringApplication features
+# of Spring Boot. A SpringApplication changes its ApplicationContext class depending on whether it thinks it needs a web application
+# or not. The first thing you can do to help it is to just leave the servlet API dependencies off the classpath. If you can't do
+# that (e.g. you are running 2 applications from the same code base) then you can explicitly call 
+#SpringApplication.setWebEnvironment(false), or set the applicationContextClass property (through the Java API or with external
+# properties). Application code that you want to run as your business logic can be implemented as a CommandLineRunner and
+# dropped into the context as a @Bean definition.
+
+# all environments (development and production)
+
+        
+#By default, Spring Boot will only log to the console and will not write log files. If you want to write log files in
+# addition to the console output you need to set a logging.file or logging.path property (for example in your 
+# application.properties).
+
+logging:
+    file: /var/log/interest-calc.log
+    
+# avoid start the embedded tomcat
+spring:
+    main:
+        web-environment: false  
+    
+    rabbitmq:
+        host: localhost
+        port: 5672     
+            
+          
+#Development environment (default):         
+
+    data:
+       mongodb:
+           host: localhost
+           port: 27017    
+           
+point-tracker:    
+    server:
+       uri: http://localhost:8090
+       
+cron:
+    query:
+        expression: 0/30 * * * * *     #every 30 seconds    
+    update:
+        31days:
+            expression: 0 0/3 * * * *  #every 3 minutes
+        30days:
+            expression: 0 0 22 28 2 ?   # feb 28 at 22:00
+        28days:
+            expression: 0 0 22 28 2 ?   # feb 28 at 22:00    
+
+---
+#Production environment:
+
+spring:
+    profiles: production
+    data:
+       mongodb:
+          port: 27017 
+          host: calc-mongo  #fqdn taken from link argument in docker-compose.yml file
+    
+    rabbitmq:
+       host: point-mb   #fqdn taken from link argument in docker-compose.yml file
+       port: 5672           
+
+#point-tracker fqdn will be added in /etc/hosts of interest-calc container
+#when adding '-link point-tracker' argument in the docker container creation 
+point-tracker:    
+    server:
+       uri: http://point-tracker:8080           
+
+cron:
+    query:
+        expression: 0 0 22 * * *     #everyday at 22:00 
+    update:
+        31days:
+            expression: 0 30 22 31 1,3,5,7,8,10,12 ?  #31st of jan, mar, may, jul, aug, oct and dec at 22:30         
+        30days:
+            expression: 0 30 22 30 4,6,9,11 ?  # 30st of apr, jun, sep and nov at 22:30
+        28days:
+            expression: 0 30 22 28 2 ?  # 28th of feb at 22:30    

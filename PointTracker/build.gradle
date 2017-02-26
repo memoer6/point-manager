@@ -1,0 +1,124 @@
+
+//The Spring Boot gradle plugin provides many convenient features:
+//It collects all the jars on the classpath and builds a single, runnable "über-jar", which makes it more convenient
+// to execute and transport your service.
+//It searches for the public static void main() method to flag as a runnable class.
+//It provides a built-in dependency resolver that sets the version number to match Spring Boot dependencies.
+//You can override any version you wish, but it will default to Boot’s chosen set of versions.
+
+
+//apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+apply plugin: 'application'  
+//Application plugin facilitates creating an executable JVM application. It makes it easy to start the application
+// locally during development, and to packaging the application as a TAR and/or ZIP including operating system specific
+// start scripts.
+//Applying the Application plugin also implicitly applies the Java plugin. The main source set is effectively the “application”.
+//Applying the Application plugin also implicitly applies the Distribution plugin. A main distribution is created that packages
+// up the application, including code dependencies and generated start scripts.
+
+//Docker. This plugin for Gradle adds the capability to build and publish Docker images from the build script.
+apply plugin: 'docker'
+
+
+mainClassName = 'com.memoer6.pointTracker.Application'    //fully qualified name
+
+buildscript {
+	ext {
+		springBootVersion = '1.4.0.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		
+		//Docker
+		classpath('se.transmode.gradle:gradle-docker:1.2')
+		
+	}
+}
+
+
+jar {
+    baseName = 'point-tracker'
+    version =  '1.0.0'
+}
+
+
+repositories {
+    mavenCentral()
+    maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+//spring boot plugin also provides dependency management that, among other capabilities, allows you to omit the version
+// number for any dependencies that are managed by Spring Boot
+dependencies {
+	 //add Tomcat and Spring MVC,
+     compile("org.springframework.boot:spring-boot-starter-web")
+     compile("org.springframework.boot:spring-boot-starter-data-jpa")
+     //compile ("org.springframework.boot:spring-boot-starter-actuator") 
+     
+      //add message broker based on AMQP (Advanced Message Queueing Protocol)
+     compile("org.springframework.boot:spring-boot-starter-amqp")   
+    
+     
+     //imports both Spring Boot test modules as well has JUnit, AssertJ, Hamcrest and a number
+     // of other useful libraries.
+     testCompile("org.springframework.boot:spring-boot-starter-test")
+     
+	//require in controller
+	compile group: 'com.google.guava', name: 'guava', version: '19.0'
+     
+	
+	//Spring Boot can auto-configure embedded H2, HSQL and Derby databases. You don’t need to provide any connection
+	//URLs, simply include a build dependency to the embedded database that you want to use.
+	//You need a dependency on spring-jdbc for an embedded database to be auto-configured. In this example it’s pulled
+	//in transitively via spring-boot-starter-data-jpa.
+	compile("com.h2database:h2")
+	
+	
+	//workaround for a bug with json testing
+	// https://mvnrepository.com/artifact/com.google.code.gson/gson
+	compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+
+	
+	
+    
+}
+
+
+//Docker  (change software version)
+//docker stop point-tracker && docker rm point-tracker    (stop and remove former container)
+//docker rmi memoer6/point-tracker:1.1.0   (remove former image)
+// ./gradlew build buildDocker   (build new image)    -x test (skip test)
+// docker create -p 8080:8080 --volumes-from dbstore --name point-tracker memoer6/point-tracker:1.1.0 (create new container)
+//sudo systemctl start point-tracker  (run the container)
+
+group = 'memoer6'
+
+
+task buildDocker(type: Docker, dependsOn: build) {
+    push = true
+  	applicationName = jar.baseName
+  	tagVersion = '1.0.0'
+  	dockerfile = file('src/main/resources/Dockerfile')
+  	doFirst {
+    	copy {
+      		from jar
+      		into stageDir
+    	}
+  	}
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+

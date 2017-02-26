@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Point Manager</title>
+        <meta charset="UTF-8">
+        <!-- Avoid error message of missing icon -->
+        <link rel="shortcut icon" href="">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="point.css">
+        <script src="sendRequests.js"></script>
+    </head>
+    <body onload = 'userListRequest()' >
+        <h1>Point Manager</h1> 
+        <fieldset id='userFieldset'>
+            <legend>USER</legend>
+            <div id='pointsDiv'></div> 
+            <div id='userMenuDiv'>
+            <label for="userMenu">Select User:</label>
+                <select id="userMenu" name="name" onclick="readUser()">                                                   
+                </select> 
+            </div>
+            <div id='userLinksDiv'></div>
+        </fieldset><br>             
+        <fieldset>
+            <legend>TRANSACTIONS</legend>
+            <table>                                  
+                <thead>                    
+                    <tr >
+                        <th class="pointsColumn">Points</th>
+                        <th class='gapColumn'></th>
+                        <th>Date</th>
+                        <th class='descriptionColumn'>Description</th>
+                        <th>Action</th>
+                    </tr>                    
+                </thead>  
+            </table>
+            <div id="scroll">
+                <table id="transactionTable"> 
+                    <tbody id="transactionBody">                         
+                    </tbody>                
+                </table>             
+            </div>
+            
+        </fieldset>  
+        <dialog id="confirmDeleteDialog">
+                <p class="noBoldDialogText">Are you sure to delete this item?</p>
+                <div class='buttonDiv'> 
+                    <button class='dialogButton' 
+                            id="deleteButton">Delete</button>                
+                    <button class='dialogButton' 
+                            id="cancelDeleteButton">Cancel</button>
+                </div>
+        </dialog>
+        <dialog id="editUserDialog">
+                <p class="dialogText">USER</p>
+                <label class="dialogLabel" for="nameId">Name:</label>
+                <input type="text" id="nameId" required > <br>
+                <label class="dialogLabel" for="totalPointsId">Total Points:</label>
+                <input type="number" id="totalPointsId" required > <br>            
+                <div class='buttonDiv'> 
+                    <button class='dialogButton' 
+                            id="acceptUserButton">Accept</button>
+                    <button class='dialogButton' 
+                            id="cancelUserButton">Cancel</button>
+                </div>           
+        </dialog>
+        <dialog id="errorDialog">
+                <p class="noBoldDialogText" id='errorMessage'></p> 
+                <div class='buttonDiv'> 
+                    <button class='dialogButton' id="okButton">OK</button> 
+                </div>    
+        </dialog>  
+        <dialog id="editTransactionDialog">
+                <p class="dialogText">TRANSACTION</p>
+                <label class="dialogLabel" for="pointsId">Points:</label>
+                <input type="number" id="pointsId" required > <br>
+                <label class="dialogLabel" for="dateId">Date:</label>
+                <input type="date" id="dateId" required > <br>
+                <label class="dialogLabel" for="descripId">Description:</label>
+                <input type="text" id="descripId" > <br>
+                <div class='buttonDiv'>  
+                    <button class='dialogButton' 
+                            id="acceptTransactionButton">Accept</button>
+                    <button class='dialogButton' 
+                            id="cancelTransactionButton">Cancel</button>
+                </div>            
+        </dialog>
+        <div class='buttonContainer'>            
+            <button class='actionButtons' id="halfPointButton" 
+                    onclick="addTransaction(this)">Half Point<br>Transaction</button>
+            <button class='actionButtons' id="fullPointButton" 
+                    onclick="addTransaction(this)">Full Point<br> Transaction</button>
+            <button class='actionButtons'  
+                    onclick="addTransaction(this)">Custom<br> Transaction</button>       
+            <button class='actionButtons' id="addUserButton" 
+                    onclick="addUser()">Add<br>User</button>           
+        </div>    
+    </body>
+</html>

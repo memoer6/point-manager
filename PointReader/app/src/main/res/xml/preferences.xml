@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Transaction List">
+
+        <CheckBoxPreference
+            android:key="pref_inverted"
+            android:title="@string/pref_inverted_title"
+            android:summary="@string/pref_inverted_summ"
+            android:defaultValue="true" />
+
+        <com.memoer6.pointreader.view.NumberPickerPreference
+            android:key="pref_number"
+            android:title="@string/pref_number_title"
+            android:defaultValue="10" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

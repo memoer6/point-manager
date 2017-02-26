@@ -1,0 +1,106 @@
+
+//The Spring Boot gradle plugin provides many convenient features:
+//It collects all the jars on the classpath and builds a single, runnable "über-jar", which makes it more convenient
+// to execute and transport your service.
+//It searches for the public static void main() method to flag as a runnable class.
+//It provides a built-in dependency resolver that sets the version number to match Spring Boot dependencies.
+//You can override any version you wish, but it will default to Boot’s chosen set of versions.
+
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+apply plugin: 'application'  
+//Application plugin facilitates creating an executable JVM application. It makes it easy to start the application
+// locally during development, and to packaging the application as a TAR and/or ZIP including operating system specific
+// start scripts.
+//Applying the Application plugin also implicitly applies the Java plugin. The main source set is effectively the “application”.
+//Applying the Application plugin also implicitly applies the Distribution plugin. A main distribution is created that packages
+// up the application, including code dependencies and generated start scripts.
+
+//Docker. This plugin for Gradle adds the capability to build and publish Docker images from the build script.
+apply plugin: 'docker'
+
+
+mainClassName = 'com.memoer6.interestcalc.Application'    //fully qualified name
+
+buildscript {
+	ext {
+		springBootVersion = '1.4.0.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		
+	//Docker
+	classpath('se.transmode.gradle:gradle-docker:1.2')
+		
+	}
+}
+
+
+jar {
+    baseName = 'interest-calc'
+    version =  '1.0.0'
+}
+
+
+repositories {
+    mavenCentral()
+    maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+//spring boot plugin also provides dependency management that, among other capabilities, allows you to omit the version
+// number for any dependencies that are managed by Spring Boot
+dependencies {
+	 //add Tomcat and Spring MVC,
+     compile("org.springframework.boot:spring-boot-starter-web")
+     
+     //add mongo database
+     compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+     
+     //These two packages are required to support the retry mechanism 
+     compile("org.springframework.retry:spring-retry")
+     compile("org.springframework.boot:spring-boot-starter-aop")
+     
+     //add message broker based on AMQP (Advanced Message Queueing Protocol)
+     compile("org.springframework.boot:spring-boot-starter-amqp") 
+     
+     //imports both Spring Boot test modules as well has JUnit, AssertJ, Hamcrest and a number
+     // of other useful libraries.
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+    
+	
+}
+
+
+//Docker
+// build docker container ->    ./gradlew build buildDocker   -x test (skip test)
+//docker run -d --volumes-from calc-mongo --name interest-calc memoer6/interest-calc:1.0.0
+//docker logs -f interest-calc
+group = 'memoer6'
+
+
+task buildDocker(type: Docker, dependsOn: build) {
+    push = true
+  	applicationName = jar.baseName
+  	 tagVersion= '1.0.0'
+  	dockerfile = file('src/main/resources/Dockerfile')
+  	doFirst {
+    	copy {
+      		from jar
+      		into stageDir
+    	}
+  	}
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+

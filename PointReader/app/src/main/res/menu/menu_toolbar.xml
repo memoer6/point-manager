@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.memoer6.pointreader.view.MainActivity">
+    <item
+        android:id="@+id/select_user"
+        android:icon="@drawable/ic_account_box_black_24dp"
+        android:title="@string/user"
+        android:actionViewClass="android.widget.ImageButton"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:title="@string/settings"
+        android:actionViewClass="android.widget.ImageButton"
+        app:showAsAction="ifRoom" />
+</menu>
